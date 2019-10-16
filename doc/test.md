@@ -1,15 +1,15 @@
 # 模型测试(`/test.py`)
 #### 参数
-- `opt.batch_size`: 模型每次预测的batch大小(`8`)
-- `opt.model_def`: 模型结构定义文件(`config/yolov3.cfg`)
-- `opt.data_config`：数据train, valid, test的相关定义文件(`config/coco.data`)
-- `opt.weights_path`: 模型权重文件(`weights/yolov3.weights`)
-- `opt.class_path`: 检测目标的种类(`data/coco.name`)
-- `opt.iou_thres`: 判断预测框是否匹配真实框的IOU阈值(`0.5`)
-- `opt.conf_thres`:
-- `opt.nms_thres`:
-- `opt.n_cpu`: dataloader是否使用多进程加载数据(`n_cpu=0:`单进程, `n_cpu>0:n_cpu`进程加载数据)
-- `opt.img_size`: 模型接收的图片大小(`416`)
+- `opt.batch_size:` 模型每次预测的batch大小(`8`)
+- `opt.model_def:` 模型结构定义文件(`config/yolov3.cfg`)
+- `opt.data_config:` 数据train, valid, test的相关定义文件(`config/coco.data`)
+- `opt.weights_path:` 模型权重文件(`weights/yolov3.weights`)
+- `opt.class_path:` 检测目标的种类(`data/coco.name`)
+- `opt.iou_thres:` 判断预测框是否匹配真实框的IOU阈值(`0.5`)
+- `opt.conf_thres:`
+- `opt.nms_thres:`
+- `opt.n_cpu:` dataloader是否使用多进程加载数据(`n_cpu=0:`单进程, `n_cpu>0:n_cpu`进程加载数据)
+- `opt.img_size:` 模型接收的图片大小(`416`)
 
 #### main
 - 通过`opt.model_def, opt.weights_path`得到要测试的模型`model`
