@@ -41,6 +41,10 @@
 ##### `def __getitem__(self, index)`
 - 函数参数
   - `index:` 要获取图片和标注的下标。
+- 函数返回
+  - `img_path:` 图片的所在路径(`string`)
+  - `img:` `padding`后长宽一致的图像tensor(`三维tensor数组，tensor([RGB, 高, 宽])`)
+  - `targets:` 图片对应的真实目标框(`二维tensor数组，tensor([目标框数, 5])。targets[i] = tensor([置信度, 中心点的纵坐标, 中心点的横坐标, 高, 宽])，且值在[0, 1]的范围内`)
 - 代码细节
   - `img:` 读取图像数据到`img`当中，如果`img`是黑白图像(即`len(img.shape) == 2`)，则需要将其扩展为`RGB`三通道的形式(`三维tensor数组，tensor([RGB, 高, 宽])`)
   - `img, pad = pad_to_square(img, 0): `如果图像的长宽不相等，则通过`padding`操作填充`0`，将图像转化为长宽相等的图像(`三维tensor数组，tensor([RGB, max(高, 宽), max(高, 宽)])`)
