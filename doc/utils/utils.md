@@ -1,1 +1,34 @@
 # `utils.utils(utils/utils.py)`
+#### `def bbox_iou(box1, box2, x1y1x2y2=True)`
+- 功能：计算`box1`与`box2`之间的`IOU`
+- 函数参数
+  - `box1:` 目标框1信息(`box1.shape = torch.Size([1, 4])`)
+  - `box2:` 目标框2信息(`box2.shape = torch.Size([n, 4])`)
+  - `x1y1x2y2:` 目标框的信息是否是`(x1, y1, x2, y2)`的形式，如果不是，会转化为相应形式
+- 函数返回
+  - `iou:` 目标框1与目标框2之间的IOU值(`iou.shape = torch.Size([n, 1])`)
+- 代码细节
+  - `b1_x1, b1_y1, b1_x2, b1_y2:` 目标框1的左上角点和右下角点信息。
+  - `b2_x1, b2_y1, b2_x2, b2_y2:` 目标框2的左上角点和右下角点信息。
+  - `inter_area:` 目标框1与目标框2之间的交叉面积(`inter_area.shape = torch.Size([n, 1])`)
+  - `b1_area:` 目标框1的面积(`b1_area.shape = torch.Size([n, 1])`)
+  - `b2_area:` 目标框2的面积(`b2_area.shape = torch.Size([n, 1])`)
+  - `iou:` 目标框1与目标框2之间的IOU值(`iou.shape = torch.Size([n, 1])`)
+
+#### `def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4)`
+- 功能：非极大值抑制，过滤掉部分预测框。
+- 函数参数
+  - `prediction:` 模型的预测框结果(`三维tensor, torch.Size([8, 10647(13*13*3 + 26*26*3 + 52*52*3), 85(5 + 80)])`)
+  - `conf_thres:` 
+  - `nms_thres:` 
+- 函数返回
+  - `output:` 非极大值抑制筛选后得到的预测框。
+- 代码细节
+  - 将预测框的`(center_x, center_y, width, height)`信息转化成`(x1, y1, x2, y2)`信息
+  - `image_pred:` 遍历`batch`的预测框`prediction`，得到每个图的预测框`image_pred`(`image_pred.shape = torch.Size([10647, 85])`)
+    - `image_pred:` 过滤掉置信度小于conf_thres的预测框(`image_pred.shape = torch.Size([n(n<10647), 85])`)
+    - `score:` 置信度*最大类别预测值得到最终预测框的置信度(`score.shape = torch.Size([n, 1])`)
+    - `image_pred:` 根据`score`从大到小排序。
+    - `class_confs:` 类别预测值中最大的值(`class_confs.shape = torch.Size([n, 1])`)
+    - `class_preds:` 类别预测值中最大值的下标(`class_preds.shape = torch.Size([n, 1])`)
+    - `detections:` 拼接预测框，类别置信度，类别id(`class_preds.shape = torch.Size([n, 7(x1, y1, x2, y2, c, class_conf, class_pred)])`)
