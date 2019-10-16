@@ -45,6 +45,8 @@
   - `img:` 读取图像数据到`img`当中，如果`img`是黑白图像(即`len(img.shape) == 2`)，则需要将其扩展为`RGB`三通道的形式(`三维tensor数组，tensor([RGB, 高, 宽])`)
   - `img, pad = pad_to_square(img, 0): `如果图像的长宽不相等，则通过`padding`操作填充`0`，将图像转化为长宽相等的图像(`三维tensor数组，tensor([RGB, max(高, 宽), max(高, 宽)])`)
   - `boxes:` 读取标签框到`boxes`中，并将标签框的`x, y, w, h`信息转化成`padding`过后的，且进行正则化操作，即值的范围在`[0, 1]`中。
+  - 如果`self.augment == True`，则`50%`的概率调用[utils.utils.horisontal_flip()][utils.utils.horisontal_flip]水平翻转图片和目标框。
   
   
 [torch.nn.functional.pad]:<https://pytorch.org/docs/stable/nn.functional.html>
+[utils.utils.horisontal_flip]:<augmentations.md#def-horisontal_flipimages-targets>
