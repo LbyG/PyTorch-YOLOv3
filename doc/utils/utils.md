@@ -19,10 +19,10 @@
 - 功能：非极大值抑制，过滤掉部分预测框。
 - 函数参数
   - `prediction:` 模型的预测框结果(`三维tensor, torch.Size([8, 10647(13*13*3 + 26*26*3 + 52*52*3), 85(5 + 80)])`)
-  - `conf_thres:` 
-  - `nms_thres:` 
+  - `conf_thres:` `预测框置信度 < opt.conf_thres`则直接筛除(`0.001`)
+  - `nms_thres:` `NMS`时，`iou > opt.nms_thres`的边界框会被抑制(`0.5`)
 - 函数返回
-  - `output:` 非极大值抑制筛选后得到的预测框。
+  - `output:` 非极大值抑制筛选后得到的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
 - 代码细节
   - 将预测框的`(center_x, center_y, width, height)`信息转化成`(x1, y1, x2, y2)`信息
   - `image_pred:` 遍历`batch`的预测框`prediction`，得到每个图的预测框`image_pred`(`image_pred.shape = torch.Size([10647, 85])`)
@@ -32,3 +32,10 @@
     - `class_confs:` 类别预测值中最大的值(`class_confs.shape = torch.Size([n, 1])`)
     - `class_preds:` 类别预测值中最大值的下标(`class_preds.shape = torch.Size([n, 1])`)
     - `detections:` 拼接预测框，类别置信度，类别id(`class_preds.shape = torch.Size([n, 7(x1, y1, x2, y2, c, class_conf, class_pred)])`)
+    - `keep_boxes:` 一张图片经过`NMS`后的预测框(`keep_boxes.shape = torch.Size([m(m<n), 7])`)
+    - 持续循环直到`detections`为空：
+      - `detections[0]`加入到`keep_boxes`中
+      - `large_overlap:` `detection`中与`detections[0]`的`iou`值是否大于`nms_thres`
+      - `label_match:` `detection`的类别是否与`detections[0]`相同
+      - `detections:` 剔除掉`detections`中与`detections[0]`类别相同且`iou > nms_thres`的`detection`
+    - `output[image_i] = keep_boxes:` 保存不同图片的最终预测框
