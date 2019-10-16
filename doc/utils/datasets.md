@@ -59,7 +59,7 @@
 ##### `def collate_fn(self, batch)`
 - 功能：[torch.utils.data.dataloader]的到一组图像和标签数据后，会调用该函数将图像和标签数据分别转换成一个tensor:
 - 函数参数
-  - `batch:` 
+  - `batch:` 用一个长度为`self.batch_size`的数组保存了图片位置，图片信息，图片对应的真实检测框(`list(tuple(path, img, target))`)
 - 函数返回
   - `paths:` 保存着图像路径的`string数组`(`一维string数组，string[batch_size]`)
   - `imgs:` batch个图像的信息，如果`self.multiscale == True`则图像会经过多尺寸缩放。(`三维tensor数组，tensor([RGB * batch_size, self.img_size, self.img_size])`)
