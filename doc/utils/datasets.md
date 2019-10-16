@@ -49,7 +49,7 @@
 - 函数返回
   - `img_path:` 图片的所在路径(`string`)
   - `img:` `padding`后长宽一致的图像tensor(`三维tensor数组，tensor([RGB, max(高, 宽), max(高, 宽)])`)
-  - `targets:` 图片对应的真实目标框(`二维tensor数组，tensor([目标框数, 6])。targets[i] = tensor([0, 0, 中心点的横坐标, 中心点的纵坐标, 宽, 高])，且值在[0, 1]的范围内`)
+  - `targets:` 图片对应的真实目标框(`二维tensor数组，tensor([目标框数, 6])。targets[i] = tensor([0, 目标类别id, 中心点的横坐标, 中心点的纵坐标, 宽, 高])，且值在[0, 1]的范围内`)
 - 代码细节
   - `img:` 读取图像数据到`img`当中，如果`img`是黑白图像(即`len(img.shape) == 2`)，则需要将其扩展为`RGB`三通道的形式(`三维tensor数组，tensor([RGB, 高, 宽])`)
   - `img, pad = pad_to_square(img, 0): `如果图像的长宽不相等，则通过`padding`操作填充`0`，将图像转化为长宽相等的图像(`三维tensor数组，tensor([RGB, max(高, 宽), max(高, 宽)])`)
@@ -64,7 +64,7 @@
 - 函数返回
   - `paths:` 保存着图像路径的`string数组`(`一维string数组，string[batch_size]`)
   - `imgs:` batch个图像的信息，如果`self.multiscale == True`则图像会经过多尺寸缩放。(`三维tensor数组，tensor([RGB * batch_size, self.img_size, self.img_size])`)
-  - `targets:` batch个图像对应的真实目标框信息(`二维tensor数组，tensor([sum_Batch(目标框数), 6])。targets[i] = tensor([图像id, 0, 中心点的横坐标, 中心点的纵坐标, 宽, 高])。图像id的值在[0, batch_size-1]的范围内，其他值在[0, 1]的范围内`)
+  - `targets:` batch个图像对应的真实目标框信息(`二维tensor数组，tensor([sum_Batch(目标框数), 6])。targets[i] = tensor([图像id, 目标类别id, 中心点的横坐标, 中心点的纵坐标, 宽, 高])。图像id的值在[0, batch_size-1]的范围内，其他值在[0, 1]的范围内`)
 - 代码细节
   - `for i, boxes in enumerate(targets): boxes[:, 0] = i`将boxes[i]的第一个维度设置为图像id。
   - 如果`self.multiscale == True`，则每10个`batch`会进行多尺寸采样，即`self.img_size = random.choice(range(self.min_size, self.max_size + 1, 32))`
