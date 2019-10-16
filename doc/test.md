@@ -26,6 +26,6 @@
   - `img_size: opt.img_size`(`416`)
   - `batch_size: 8`
 - 代码细节
-  - dataset = [utils.utils.ListDataset(path, img_size=img_size, augment=False, multiscale=False)][utils.utils.ListDataset]初始化`path`数据中的图片和真实框。
+  - dataset = [utils.datasets.ListDataset(path, img_size=img_size, augment=False, multiscale=False)][utils.datasets.ListDataset]初始化`path`数据中的图片和真实框。
 
-[utils.utils.ListDataset]:<>
+[utils.datasets.ListDataset]:<utils/datasets.md#def-__init__self-list_path-img_size416-augmenttrue-multiscaletrue-normalized_labelstrue>
