@@ -6,8 +6,8 @@
 - `opt.weights_path:` 模型权重文件(`weights/yolov3.weights`)
 - `opt.class_path:` 检测目标的种类(`data/coco.name`)
 - `opt.iou_thres:` 判断预测框是否匹配真实框的IOU阈值(`0.5`)
-- `opt.conf_thres:`
-- `opt.nms_thres:`
+- `opt.conf_thres:` `预测框置信度 < opt.conf_thres`则直接筛除(`0.001`)
+- `opt.nms_thres:` `NMS`时，`iou > opt.nms_thres`的边界框会被抑制(`0.5`)
 - `opt.n_cpu:` dataloader是否使用多进程加载数据(`n_cpu=0:`单进程, `n_cpu>0:n_cpu`进程加载数据)
 - `opt.img_size:` 模型接收的图片大小(`416`)
 
@@ -30,8 +30,9 @@
   - `dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=dataset.collate_fn)`。遍历`dataloader`，每次会返回`batch_size`个图像和相关标注的信息。
   - `for batch_i, (_, imgs, targets) in enumerate(tqdm.tqdm(dataloader, desc="Detecting objects")):`
     - `label:` 保存图片目标框的种类信息(`list类型，len(label) = 所有图像的真实目标框总数`)
-    - `outputs = model(imgs):` `yolov3`会输出`13*13, 26*26, 52*52`的特征矩阵，特征矩阵每个cell会预测3个`anchor`，每个`anchor`是`85`维向量，`[0:4]`为是预测框的`x, y, w, h`, `[5]`是置信度, `[5:85]`是对类别的预测(`三维tensor, torch.Size([8, 13*13*3 + 26*26*3 + 52*52*3, 5 + 80])`) 
+    - `target:` 真实目标框的`(center_x, center_y, width, height)`信息转化成`(x1, y1, x2, y2)`信息，并且由`[0, 1]`的范围转化为`[0, img_size]`
+    - `outputs = model(imgs):` `yolov3`会输出`13*13, 26*26, 52*52`的特征矩阵，特征矩阵每个cell会预测3个`anchor`，每个`anchor`是`85`维向量，`[0:4]`为是预测框的`x, y, w, h`, `[5]`是置信度, `[5:85]`是对类别的预测(`三维tensor, torch.Size([8, 10647(13*13*3 + 26*26*3 + 52*52*3), 85(5 + 80)])`) 
     - `outputs = `[utils.utils.non_max_suppression(outputs, conf_thres=conf_thres, nms_thres=nms_thres)][utils.utils.non_max_suppression]，非极大值抑制。
 
 [utils.datasets.ListDataset]:<utils/datasets.md#def-__init__self-list_path-img_size416-augmenttrue-multiscaletrue-normalized_labelstrue>
-[utils.utils.non_max_suppression]:<>
+[utils.utils.non_max_suppression]:<utils/utils.md#def-non_max_suppressionprediction-conf_thres05-nms_thres04>
