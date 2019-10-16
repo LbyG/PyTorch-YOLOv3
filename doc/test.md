@@ -19,9 +19,13 @@
 #### evaluate
 - 参数
   - `model: Darknet(opt.model_def).load_darknet_weights(opt.weights_path)`
-  - `path: opt.data_config["valid"]`
-  - `iou_thres: opt.iou_thres`
-  - `conf_thres: opt.conf_thres`
-  - `nms_thres: opt.nms_thres`
-  - `img_size: opt.img_size`
+  - `path: opt.data_config["valid"]`(`data/coco/5k.txt`)
+  - `iou_thres: opt.iou_thres`(`0.5`)
+  - `conf_thres: opt.conf_thres`(`0.01`)
+  - `nms_thres: opt.nms_thres`(`0.5`)
+  - `img_size: opt.img_size`(`416`)
   - `batch_size: 8`
+- 代码细节
+  - dataset = [utils.utils.ListDataset(path, img_size=img_size, augment=False, multiscale=False)][utils.utils.ListDataset]初始化`path`数据中的图片和真实框。
+
+[utils.utils.ListDataset]:<>
