@@ -13,7 +13,7 @@
 
 #### main()
 - 通过`opt.model_def, opt.weights_path`得到要测试的模型`model`
-- `precision, recall, AP, f1, ap_class = `[evaluate()](test.md#evaluate())
+- `precision, recall, AP, f1, ap_class = `[evaluate()](test.md#evaluate)
 - `mAP = AP.mean()`
 
 #### evaluate()
