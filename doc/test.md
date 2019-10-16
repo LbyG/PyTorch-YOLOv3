@@ -26,6 +26,12 @@
   - `img_size: opt.img_size`(`416`)
   - `batch_size: 8`
 - 代码细节
-  - dataset = [utils.datasets.ListDataset(path, img_size=img_size, augment=False, multiscale=False)][utils.datasets.ListDataset]初始化`path`数据中的图片和真实框。
+  - `dataset =` [utils.datasets.ListDataset(path, img_size=img_size, augment=False, multiscale=False)][utils.datasets.ListDataset]初始化`path`数据中的图片和真实框。
+  - `dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=dataset.collate_fn)`。遍历`dataloader`，每次会返回`batch_size`个图像和相关标注的信息。
+  - `for batch_i, (_, imgs, targets) in enumerate(tqdm.tqdm(dataloader, desc="Detecting objects")):`
+    - `label:` 保存图片目标框的种类信息(`list类型，len(label) = 所有图像的真实目标框总数`)
+    - `outputs = model(imgs):` `yolov3`会输出`13*13, 26*26, 52*52`的特征矩阵，特征矩阵每个cell会预测3个`anchor`，每个`anchor`是`85`维向量，`[0:4]`为是预测框的`x, y, w, h`, `[5]`是置信度, `[5:85]`是对类别的预测(`三维tensor, torch.Size([8, 13*13*3 + 26*26*3 + 52*52*3, 5 + 80])`) 
+    - `outputs = `[utils.utils.non_max_suppression(outputs, conf_thres=conf_thres, nms_thres=nms_thres)][utils.utils.non_max_suppression]，非极大值抑制。
 
 [utils.datasets.ListDataset]:<utils/datasets.md#def-__init__self-list_path-img_size416-augmenttrue-multiscaletrue-normalized_labelstrue>
+[utils.utils.non_max_suppression]:<>
