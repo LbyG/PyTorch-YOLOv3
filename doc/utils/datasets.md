@@ -21,7 +21,7 @@
   - `normalized_labels:` 获得图片坐标的时候，是否正则化到`[0, 1]`的范围内。
 - 代码细节
   - `self.img_files:` 读取`list_path`文件中保存所有的图像路径，如`/home/lbyg/object_detection/input/coco/images/val2014/COCO_val2014_000000000164.jpg`。
-  - `self.label_files` 将图片路径中的"images"替换成"labels",".jpg"替换成".txt"得到相关标签文件的路径，如`/home/lbyg/object_detection/input/coco/labels/val2014/COCO_val2014_000000000164.txt`。
+  - `self.label_files` 将图片路径中的`"images"`替换成`"labels"`,`".jpg"`替换成`".txt"`得到相关标签文件的路径，如`/home/lbyg/object_detection/input/coco/labels/val2014/COCO_val2014_000000000164.txt`。
   - `self.img_size = img_size(416)`
   - `self.max_objects = 100`
   - `self.augment = augment(True)`
