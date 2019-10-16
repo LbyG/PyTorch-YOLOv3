@@ -11,12 +11,12 @@
 - `opt.n_cpu:` dataloader是否使用多进程加载数据(`n_cpu=0:`单进程, `n_cpu>0:n_cpu`进程加载数据)
 - `opt.img_size:` 模型接收的图片大小(`416`)
 
-#### main
+#### main()
 - 通过`opt.model_def, opt.weights_path`得到要测试的模型`model`
-- `precision, recall, AP, f1, ap_class = `[evaluate()](test.md#evaluate)
+- `precision, recall, AP, f1, ap_class = `[evaluate()](test.md#evaluate())
 - `mAP = AP.mean()`
 
-#### evaluate
+#### evaluate()
 - 参数
   - `model: Darknet(opt.model_def).load_darknet_weights(opt.weights_path)`
   - `path: opt.data_config["valid"]`(`data/coco/5k.txt`)
