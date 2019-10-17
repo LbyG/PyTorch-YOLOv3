@@ -1,4 +1,16 @@
 # `utils.utils(utils/utils.py)`
+#### `def get_batch_statistics(outputs, targets, iou_threshold)`
+- 功能：参考[COCO mAP]的计算方法，计算`tp, fp, 预测置信度和预测类别id`
+- 函数参数
+  - `outputs:` `batch`个图片经过`NMS`过滤后的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
+  - `targets:` `batch`个图片的真实目标框(`三维tensor数组，tensor([batch_size, 目标框数, 6])。targets[batch_i, bbox_i] = tensor([batch_i, 目标类别id, center_x, center_y, width, height])，且值在[0, 1]的范围内`)
+  - `iou_threshold:` 如果预测目标框与真实目标框之间的`IOU > iou_threshold`则认为预测匹配了相关真实目标框(`int`)
+- 函数返回
+  - `batch_metrics:` 类型为`list(batch_size * list[true_positives, pred_scores, pred_labels])`。
+    - `true_positives:` 记录了预测框是否正确。如果`true_positives[pred_i] == 1`，则表明预测框`pred_id`正确检测了目标，否则为错误预测(`list(m * int)`)
+    - `pred_score:` 记录了预测框的置信度，该向量不一定是从大到小有序的，因为是按pred_score*label_score从大到小排序的(`tensor([m])`)
+    - `pred_labels:` (`tensor([m])`)
+
 #### `def bbox_iou(box1, box2, x1y1x2y2=True)`
 - 功能：计算`box1`与`box2`之间的`IOU`
 - 函数参数
@@ -39,3 +51,5 @@
       - `label_match:` `detection`的类别是否与`detections[0]`相同
       - `detections:` 剔除掉`detections`中与`detections[0]`类别相同且`iou > nms_thres`的`detection`
     - `output[image_i] = keep_boxes:` 保存不同图片的最终预测框
+
+[COCO mAP]:<https://github.com/LbyG/MOT-Paper-Notes/blob/master/evaluate-metric.md#map%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B>
