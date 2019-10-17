@@ -15,8 +15,18 @@
 - 代码细节
   - `tp, conf, pred_cls`根据`conf`从大到小排序
   - `unique_class: `真实目标框中存在的类别(`list(存在类别数量 * int)`)
-  - 
-  
+  - `c:` 遍历不同类别的标签
+    - `n_gt:` 类别为`c`的真实目标框个数(`int`)
+    - `n_p:` 类别为`c`的预测目标框个数(`int`)
+    - `fpc:` `fpc[i]`为第`0-i`个预测目标框中的错误预测数`FP`
+    - `tpc:` `tpc[i]`为第`0-i`个预测目标框中的正确预测数`TP`
+    - `recall_curve:` `recall_curve[i]`为第`0-i`个预测目标框的召回值
+    - `precision_curve:` `precision_curve[i]`为第`0-i`个预测目标框的精确值
+    - `ap:` [compute_ap(recall_curve, precision_curve)][compute_ap]计算出每个类别的`AP`值
+  - `f1:` 计算出不同类别的f1值
+
+#### `def compute_ap(recall, precision)`
+- 功能：通过`recall`和`precision`数组计算出`AP`值
 
 #### `def get_batch_statistics(outputs, targets, iou_threshold)`
 - 功能：参考[COCO mAP]的计算方法，计算`tp, fp, 预测置信度和预测类别id`
@@ -86,3 +96,4 @@
     - `output[image_i] = keep_boxes:` 保存不同图片的最终预测框
 
 [COCO mAP]:<https://github.com/LbyG/MOT-Paper-Notes/blob/master/evaluate-metric.md#map%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B>
+[compute_ap]:<>
