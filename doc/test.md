@@ -42,9 +42,9 @@
     - `outputs = model(imgs):` `yolov3`会输出`13*13, 26*26, 52*52`的特征矩阵，特征矩阵每个cell会预测3个`anchor`，每个`anchor`是`85`维向量，`[0:4]`为是预测框的`x, y, w, h`, `[5]`是置信度, `[5:85]`是对类别的预测(`三维tensor, torch.Size([8, 10647(13*13*3 + 26*26*3 + 52*52*3), 85(5 + 80)])`) 
     - `outputs = `[utils.utils.non_max_suppression(outputs, conf_thres=conf_thres, nms_thres=nms_thres)][utils.utils.non_max_suppression]，非极大值抑制筛选后得到，置信度从大到小的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
     - `sample_metrics:` `sample_mtrics += `[utils.utils.get_batch_statistics(outputs, targets, iou_threshold=iou_thres)][utils.utils.get_batch_statistics](`list(img_N * list[true_positives, pred_scores, pred_labels])`)
-  - `true_positives:` 从`sample_metrics`中抽取并拼接的`tp, fp`信息(`tensor([sum(nms_pred_n)])`)
-  - `pred_scores:` 从`sample_metrics`中抽取并拼接的置信度信息(`tensor([sum(nms_pred_n)])`)
-  - `pred_labels:` 从`sample_metrics`中抽取并拼接的目标类别信息(`tensor([sum(nms_pred_n)])`)
+  - `true_positives:` 从`sample_metrics`中抽取并拼接得到的`NMS`过滤后所有预测框是否为准确预测，`tp[pred_i] == 1`表示预测框`pred_i`为正确检测`TP`，否则`tp[pred_i] == 0`表示预测框`pred_i`为正确检测`FP`(`tensor([NMS过滤后的预测框总数])`)
+  - `pred_scores:` 从`sample_metrics`中抽取并拼接得到的`NMS`过滤后所有预测框的置信度(`tensor([NMS过滤后的预测框总数])`)
+  - `pred_labels:` 从`sample_metrics`中抽取并拼接得到的`NMS`过滤后所有预测框的预测类别(`tensor([NMS过滤后的预测框总数])`)
   - `precision, recall, AP, f1, ap_class = `[utils.utils.ap_per_class(true_positives, pred_scores, pred_labels, labels)][utils.utils.ap_per_class]
 
 [utils.datasets.ListDataset]:<utils/datasets.md#def-__init__self-list_path-img_size416-augmenttrue-multiscaletrue-normalized_labelstrue>
