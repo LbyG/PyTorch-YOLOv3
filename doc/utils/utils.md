@@ -9,7 +9,7 @@
   - `batch_metrics:` 类型为`list(batch_size * list[true_positives, pred_scores, pred_labels])`。
     - `true_positives:` 记录了预测框是否正确。如果`true_positives[pred_i] == 1`，则表明预测框`pred_id`正确检测了目标，否则为错误预测(`list(m * int)`)
     - `pred_score:` 记录了预测框的置信度，该向量不一定是从大到小有序的，因为是按pred_score*label_score从大到小排序的(`tensor([m])`)
-    - `pred_labels:` (`tensor([m])`)
+    - `pred_labels:` 记录了预测框检测到的类别(`tensor([m])`)
 
 #### `def bbox_iou(box1, box2, x1y1x2y2=True)`
 - 功能：计算`box1`与`box2`之间的`IOU`
