@@ -31,7 +31,7 @@
   - `for batch_i, (_, imgs, targets) in enumerate(tqdm.tqdm(dataloader, desc="Detecting objects")):`
     - `imgs:` `batch`个图片的信息(`四维tensor数组，tensor([batch_size, RGB, max(高, 宽), max(高, 宽)])`)
     - `targets:` `batch`个图片对应的真实目标框信息(`二维tensor数组，tensor([sumBatch(目标框数), 6])。targets[bbox_i] = tensor([batch_i, 目标类别id, center_x, center_y, width, height])，且值在[0, 1]的范围内`)
-    - `label:` 保存图片目标框的种类信息(`list类型，len(label) = 所有图像的真实目标框总数`)
+    - `labels:` 保存图片目标框的种类信息(`list类型，len(labels) = 所有图像的真实目标框总数`)
     - `target:` 真实目标框的`(center_x, center_y, width, height)`信息转化成`(x1, y1, x2, y2)`信息，并且由`[0, 1]`的范围转化为`[0, img_size]`
     - `outputs = model(imgs):` `yolov3`会输出`13*13, 26*26, 52*52`的特征矩阵，特征矩阵每个cell会预测3个`anchor`，每个`anchor`是`85`维向量，`[0:4]`为是预测框的`x, y, w, h`, `[5]`是置信度, `[5:85]`是对类别的预测(`三维tensor, torch.Size([8, 10647(13*13*3 + 26*26*3 + 52*52*3), 85(5 + 80)])`) 
     - `outputs = `[utils.utils.non_max_suppression(outputs, conf_thres=conf_thres, nms_thres=nms_thres)][utils.utils.non_max_suppression]，非极大值抑制筛选后得到，置信度从大到小的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
