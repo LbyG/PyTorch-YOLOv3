@@ -10,6 +10,20 @@
     - `true_positives:` 记录了预测框是否正确。如果`true_positives[pred_i] == 1`，则表明预测框`pred_id`正确检测了目标，否则为错误预测(`list(m * int)`)
     - `pred_score:` 记录了预测框的置信度，该向量不一定是从大到小有序的，因为是按pred_score*label_score从大到小排序的(`tensor([m])`)
     - `pred_labels:` 记录了预测框检测到的类别(`tensor([m])`)
+- 代码细节
+  - 遍历`sample_i = range(len(output))`
+    - `annotations:` 获得第`batch_i`张图片的真实检测框(`二维tensor数组，tensor([目标框数, 5])。targets[bbox_i] = tensor([目标类别id, x1, y1, x2, y2])，且值在[0, img_size]的范围内`)
+    - `target_labels:` 真是目标框的类别(`tensor([目标框数])`)
+    - `target_boxes:` 真是目标框的信息(`二维tensor数组，tensor([目标框数, 5])。targets[bbox_i] = tensor([目标类别id, x1, y1, x2, y2])，且值在[0, img_size]的范围内`)
+    - `detected_boxes:` 保存已被匹配的真实目标框的`index`
+    - 遍历`pred_i, (pred_box, pred_label) = enumerate(zip(pred_boxes, pred_labels)):`
+      - 如果预测类别`pred_label not in target_labels`，则`continue`
+      - `iou:` 预测框`pred_box`与所有真实预测框之间的最大IOU值，**TODO 验证是否有约束预测框与真实框同类别**
+      - `box_index:` 预测框`pred_box`与所有真实预测框`target[box_index]`之间的IOU值最大
+      - 如果满足`iou > iou_threshold and box_index not in detected_box`，则：
+        - `true_positives[pred_i] = 1`
+        - `detected_box += box_index`
+    - `batch_metrics.append([true_positives, pred_scores, pred_labels])`
 
 #### `def bbox_iou(box1, box2, x1y1x2y2=True)`
 - 功能：计算`box1`与`box2`之间的`IOU`
