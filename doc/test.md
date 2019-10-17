@@ -17,7 +17,7 @@
 - `mAP = AP.mean()`
 
 #### evaluate()
-- 参数
+- 函数参数
   - `model: Darknet(opt.model_def).load_darknet_weights(opt.weights_path)`
   - `path: opt.data_config["valid"]`(`data/coco/5k.txt`)
   - `iou_thres: opt.iou_thres`(`0.5`)
@@ -25,6 +25,12 @@
   - `nms_thres: opt.nms_thres`(`0.5`)
   - `img_size: opt.img_size`(`416`)
   - `batch_size: 8`
+- 函数返回
+  - `precision:` 不同类别预测的精确值(`list(存在的类别数量 * double)`)
+  - `recall:` 不同类别预测的召回值(`list(存在的类别数量 * double)`)
+  - `AP:` 不同类别预测的`AP`值(`list(存在的类别数量 * double)`)
+  - `f1:` 不同类别预测的`f1`值(`list(存在的类别数量 * double)`)
+  - `ap_class:` 真实目标框中存在的类别id(`list(存在的类别数量 * int)`)
 - 代码细节
   - `dataset =` [utils.datasets.ListDataset(path, img_size=img_size, augment=False, multiscale=False)][utils.datasets.ListDataset]初始化`path`数据中的图片和真实框。
   - `dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=dataset.collate_fn)`。遍历`dataloader`，每次会返回`batch_size`个图像和相关标注的信息。
@@ -39,7 +45,9 @@
   - `true_positives:` 从`sample_metrics`中抽取并拼接的`tp, fp`信息(`tensor([sum(nms_pred_n)])`)
   - `pred_scores:` 从`sample_metrics`中抽取并拼接的置信度信息(`tensor([sum(nms_pred_n)])`)
   - `pred_labels:` 从`sample_metrics`中抽取并拼接的目标类别信息(`tensor([sum(nms_pred_n)])`)
+  - `precision, recall, AP, f1, ap_class = `[utils.utils.ap_per_class(true_positives, pred_scores, pred_labels, labels)][utils.utils.ap_per_class]
 
 [utils.datasets.ListDataset]:<utils/datasets.md#def-__init__self-list_path-img_size416-augmenttrue-multiscaletrue-normalized_labelstrue>
 [utils.utils.get_batch_statistics]:<utils/utils.md#def-get_batch_statisticsoutputs-targets-iou_threshold>
 [utils.utils.non_max_suppression]:<utils/utils.md#def-non_max_suppressionprediction-conf_thres05-nms_thres04>
+[utils.utils.ap_per_class]:<>
