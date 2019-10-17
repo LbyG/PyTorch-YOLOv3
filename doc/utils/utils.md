@@ -1,4 +1,23 @@
 # `utils.utils(utils/utils.py)`
+#### `def ap_per_class(tp, conf, pred_cls, target_cls)`
+- 功能：计算出每个类别预测的`precise, recall, AP, f1`值
+- 函数参数
+  - `tp:` `NMS`过滤后所有预测框是否为准确预测，`tp[pred_i] == 1`表示预测框`pred_i`为正确检测`TP`，否则`tp[pred_i] == 0`表示预测框`pred_i`为正确检测`FP`(`tensor([NMS过滤后的预测框总数])`)
+  - `conf:` `NMS`过滤后所有预测框的置信度(`tensor([NMS过滤后的预测框总数])`)
+  - `pred_cls:` `NMS`过滤后所有预测框的预测类别(`tensor([NMS过滤后的预测框总数])`)
+  - `target_cls:` 所有真实目标框的类别(`tensor([真实目标框总数])`)
+- 函数返回
+  - `p:` 不同类别预测的精确值(`list(存在的类别数量 * double)`)
+  - `r:` 不同类别预测的召回值(`list(存在的类别数量 * double)`)
+  - `ap:` 不同类别预测的`AP`值(`list(存在的类别数量 * double)`)
+  - `f1:` 不同类别预测的`f1`值(`list(存在的类别数量 * double)`)
+  - `ap_class:` 真实目标框中存在的类别id(`list(存在的类别数量 * int)`)
+- 代码细节
+  - `tp, conf, pred_cls`根据`conf`从大到小排序
+  - `unique_class: `真实目标框中存在的类别(`list(存在类别数量 * int)`)
+  - 
+  
+
 #### `def get_batch_statistics(outputs, targets, iou_threshold)`
 - 功能：参考[COCO mAP]的计算方法，计算`tp, fp, 预测置信度和预测类别id`
 - 函数参数
