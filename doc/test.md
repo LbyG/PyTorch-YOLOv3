@@ -50,4 +50,4 @@
 [utils.datasets.ListDataset]:<utils/datasets.md#def-__init__self-list_path-img_size416-augmenttrue-multiscaletrue-normalized_labelstrue>
 [utils.utils.get_batch_statistics]:<utils/utils.md#def-get_batch_statisticsoutputs-targets-iou_threshold>
 [utils.utils.non_max_suppression]:<utils/utils.md#def-non_max_suppressionprediction-conf_thres05-nms_thres04>
-[utils.utils.ap_per_class]:<>
+[utils.utils.ap_per_class]:<utils/utils.md#def-ap_per_classtp-conf-pred_cls-target_cls>
