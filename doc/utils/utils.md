@@ -21,12 +21,21 @@
     - `fpc:` `fpc[i]`为第`0-i`个预测目标框中的错误预测数`FP`
     - `tpc:` `tpc[i]`为第`0-i`个预测目标框中的正确预测数`TP`
     - `recall_curve:` `recall_curve[i]`为第`0-i`个预测目标框的召回值
+    - `r:` 类别`c`的召回值
     - `precision_curve:` `precision_curve[i]`为第`0-i`个预测目标框的精确值
+    - `p:` 类别`c`的精确值
     - `ap:` [compute_ap(recall_curve, precision_curve)][compute_ap]计算出每个类别的`AP`值
   - `f1:` 计算出不同类别的f1值
 
 #### `def compute_ap(recall, precision)`
 - 功能：通过`recall`和`precision`数组计算出`AP`值
+- 函数参数
+  - `recall:` `recall[i]`为第`0-i`个预测目标框的召回值，目标框的置信度从大到小排序(`numpy([预测目标框数目])`)
+  - `precision:` `precision[i]`为第`0-i`个预测目标框的精确值，目标框的置信度从大到小排序(`numpy([预测目标框数目])`)
+- 函数返回
+  - `AP:` `recall-precision`曲线的面积(`int`)
+- 代码细节
+  - 采用积分的方法计算出`recall-precision`曲线的面积
 
 #### `def get_batch_statistics(outputs, targets, iou_threshold)`
 - 功能：参考[COCO mAP]的计算方法，计算`tp, fp, 预测置信度和预测类别id`
@@ -96,4 +105,4 @@
     - `output[image_i] = keep_boxes:` 保存不同图片的最终预测框
 
 [COCO mAP]:<https://github.com/LbyG/MOT-Paper-Notes/blob/master/evaluate-metric.md#map%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B>
-[compute_ap]:<>
+[compute_ap]:<utils.md#def-compute_aprecall-precision>
