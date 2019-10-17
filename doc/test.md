@@ -30,7 +30,7 @@
   - `dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=dataset.collate_fn)`。遍历`dataloader`，每次会返回`batch_size`个图像和相关标注的信息。
   - `for batch_i, (_, imgs, targets) in enumerate(tqdm.tqdm(dataloader, desc="Detecting objects")):`
     - `imgs:` `batch`个图片的信息(`四维tensor数组，tensor([batch_size, RGB, max(高, 宽), max(高, 宽)])`)
-    - `targets:` `batch`个图片对应的真实目标框信息(`三维tensor数组，tensor([batch_size, 目标框数, 6])。targets[batch_i, bbox_i] = tensor([batch_i, 目标类别id, center_x, center_y, width, height])，且值在[0, 1]的范围内`)
+    - `targets:` `batch`个图片对应的真实目标框信息(`二维tensor数组，tensor([sumBatch(目标框数), 6])。targets[bbox_i] = tensor([batch_i, 目标类别id, center_x, center_y, width, height])，且值在[0, 1]的范围内`)
     - `label:` 保存图片目标框的种类信息(`list类型，len(label) = 所有图像的真实目标框总数`)
     - `target:` 真实目标框的`(center_x, center_y, width, height)`信息转化成`(x1, y1, x2, y2)`信息，并且由`[0, 1]`的范围转化为`[0, img_size]`
     - `outputs = model(imgs):` `yolov3`会输出`13*13, 26*26, 52*52`的特征矩阵，特征矩阵每个cell会预测3个`anchor`，每个`anchor`是`85`维向量，`[0:4]`为是预测框的`x, y, w, h`, `[5]`是置信度, `[5:85]`是对类别的预测(`三维tensor, torch.Size([8, 10647(13*13*3 + 26*26*3 + 52*52*3), 85(5 + 80)])`) 
