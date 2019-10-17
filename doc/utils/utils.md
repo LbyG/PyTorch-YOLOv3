@@ -3,7 +3,7 @@
 - 功能：参考[COCO mAP]的计算方法，计算`tp, fp, 预测置信度和预测类别id`
 - 函数参数
   - `outputs:` `batch`个图片经过`NMS`过滤后的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
-  - `targets:` `batch`个图片的真实目标框(`三维tensor数组，tensor([batch_size, 目标框数, 6])。targets[batch_i, bbox_i] = tensor([batch_i, 目标类别id, x1, y1, x2, y2])，且值在[0, img_size]的范围内`)
+  - `targets:` `batch`个图片的真实目标框(`二维tensor数组，tensor([sumBatch(目标框数), 6])。targets[bbox_i] = tensor([batch_i, 目标类别id, x1, y1, x2, y2])，且值在[0, img_size]的范围内`)
   - `iou_threshold:` 如果预测目标框与真实目标框之间的`IOU > iou_threshold`则认为预测匹配了相关真实目标框(`int`)
 - 函数返回
   - `batch_metrics:` 类型为`list(batch_size * list[true_positives, pred_scores, pred_labels])`。
