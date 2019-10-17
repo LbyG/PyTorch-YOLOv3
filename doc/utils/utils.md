@@ -22,7 +22,7 @@
   - `conf_thres:` `预测框置信度 < opt.conf_thres`则直接筛除(`0.001`)
   - `nms_thres:` `NMS`时，`iou > opt.nms_thres`的边界框会被抑制(`0.5`)
 - 函数返回
-  - `output:` 非极大值抑制筛选后得到的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
+  - `output:` 非极大值抑制筛选后得到，置信度从大到小的预测框(`list(batch_size * tensor([m, 7(x1, y1, x2, y2, c, class_conf, class_pred)]))`)
 - 代码细节
   - 将预测框的`(center_x, center_y, width, height)`信息转化成`(x1, y1, x2, y2)`信息
   - `image_pred:` 遍历`batch`的预测框`prediction`，得到每个图的预测框`image_pred`(`image_pred.shape = torch.Size([10647, 85])`)
