@@ -18,7 +18,7 @@
     - `detected_boxes:` 保存已被匹配的真实目标框的`index`
     - 遍历`pred_i, (pred_box, pred_label) = enumerate(zip(pred_boxes, pred_labels)):`
       - 如果预测类别`pred_label not in target_labels`，则`continue`
-      - `iou:` 预测框`pred_box`与所有真实预测框之间的最大IOU值，**不约束预测框与真实框同类别**
+      - `iou:` 预测框`pred_box`与所有真实预测框之间的最大IOU值，**不约束预测框与真实框同类别mAP=0.515,约束同类别mAP=0.503**
       - `box_index:` 预测框`pred_box`与所有真实预测框`target[box_index]`之间的IOU值最大
       - 如果满足`iou > iou_threshold and box_index not in detected_box`，则：
         - `true_positives[pred_i] = 1`
