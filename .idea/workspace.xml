@@ -13,7 +13,7 @@
   </component>
   <component name="ProjectId" id="1SEXMzRh1vk3Oyi2llz4UOszreB" />
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../PyTorch-YOLOv3(1)" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -28,7 +28,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.video_detect_allbox">
+  <component name="RunManager" selected="Python.detect_allbox">
     <configuration name="detect" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="PyTorch-YOLOv3" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -136,9 +136,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.video_detect_allbox" />
-        <item itemvalue="Python.detect" />
         <item itemvalue="Python.detect_allbox" />
+        <item itemvalue="Python.detect" />
+        <item itemvalue="Python.video_detect_allbox" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.utils" />
       </list>

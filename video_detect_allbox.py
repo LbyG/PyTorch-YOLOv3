@@ -25,14 +25,10 @@ from matplotlib.ticker import NullLocator
 def drawManyBBox(frame, detections, color, isTransparency):
     # Draw bounding boxes and labels of detections
     if detections is not None:
-        # (1, n, 7) -> (n, 7)
-        detections = detections[0]
         # remove confidence < 1e-3
         detections = detections[detections[:, 4] >= opt.conf_thres]
         # only care about person type detections
         detections = torch.cat((detections[..., :6], torch.zeros(detections.shape[0], 1)), 1)
-        # (x, y, w, h) -> (x1, y1, x2, y2)
-        detections[..., :4] = xywh2xyxy(detections[..., :4])
         # Rescale boxes to original image
         detections = rescale_boxes(detections, opt.img_size, frame.shape[:2])
         # add detections to video frame
@@ -53,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
     parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
-    parser.add_argument("--conf_thres", type=float, default=0.1, help="object confidence threshold")
+    parser.add_argument("--conf_thres", type=float, default=0.004, help="object confidence threshold")
     parser.add_argument("--nms_thres", type=float, default=0.4, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--batch_size", type=int, default=1, help="size of the batches")
     parser.add_argument("--n_cpu", type=int, default=0, help="number of cpu threads to use during batch generation")
@@ -114,8 +110,12 @@ if __name__ == "__main__":
             # yolov3 to detect
             with torch.no_grad():
                 detections = model(video_img)
-                frame = drawManyBBox(frame, detections, [255, 0, 255], True)
                 nms_detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
+                detections = detections[0]
+                nms_detections = nms_detections[0]
+                nms_detections = nms_detections[nms_detections[..., 6] == 0]
+                # (x, y, w, h) -> (x1, y1, x2, y2)
+                frame = drawManyBBox(frame, detections, [255, 0, 255], True)
                 frame = drawManyBBox(frame, nms_detections, [0, 255, 0], True)
 
             # save video frame
