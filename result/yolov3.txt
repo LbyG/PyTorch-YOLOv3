@@ -1,0 +1,52 @@
+data_path =  ../Input/MOT16/train/MOT16-02
+mAP: 0.3186787753413913
+data_path =  ../Input/MOT16/train/MOT16-04
+mAP: 0.5697867640009767
+data_path =  ../Input/MOT16/train/MOT16-05
+mAP: 0.6708628851822094
+data_path =  ../Input/MOT16/train/MOT16-09
+mAP: 0.6642942704278688
+data_path =  ../Input/MOT16/train/MOT16-10
+mAP: 0.5323564565400258
+data_path =  ../Input/MOT16/train/MOT16-11
+mAP: 0.6494810694438586
+data_path =  ../Input/MOT16/train/MOT16-13
+mAP: 0.3835081286028846
+data_path =  ../Input/TJ/1_2_0
+mAP: 0.30623708066408295
+data_path =  ../Input/TJ/1_2_1
+mAP: 0.2418521132611502
+data_path =  ../Input/TJ/1_2_2
+mAP: 0.3598651935348239
+data_path =  ../Input/TJ/1_2_3
+mAP: 0.4413282996234641
+data_path =  ../Input/TJ/1_2_4
+mAP: 0.24090363783846414
+data_path =  ../Input/TJ/1_2_5
+mAP: 0.21516442589869375
+data_path =  ../Input/TJ/1_2_6
+mAP: 0.46824913244092925
+data_path =  ../Input/TJ/1_2_7
+mAP: 0.30586441986402957
+data_path =  ../Input/TJ/1_2_8
+mAP: 0.4694441850939389
+data_path =  ../Input/TJ/1_2_9
+mAP: 0.3256572704695753
+data_path =  ../Input/TJ/1_2_10
+mAP: 0.37194399782346577
+data_path =  ../Input/TJ/1_2_11
+mAP: 0.4510865425200118
+data_path =  ../Input/TJ/1_2_12
+mAP: 0.49208530005771817
+data_path =  ../Input/TJ/1_2_13
+mAP: 0.47471918213783776
+data_path =  ../Input/TJ/A_256_0
+mAP: 0.18062027462427624
+data_path =  ../Input/TJ/virtual2
+mAP: 0.04639311851318285
+data_path =  ../Input/TJ/virtual4
+mAP: 0.04652286817957474
+
+avg_AP = 0.38445439133685144
+
+

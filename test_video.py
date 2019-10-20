@@ -64,7 +64,7 @@ def evaluate(model, data_path, iou_thres, conf_thres, nms_thres, img_size):
     sample_metrics = []  # List of tuples (TP, confs, pred)
     frame_id = 0
     while cap.isOpened():
-        if frame_id % 100 == 0:
+        if frame_id % 500 == 0:
             print("frame_id = ", frame_id)
         ret, frame = cap.read()
         if ret:
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
         print("Compute mAP...")
 
-        data_id = 0
+        avg_AP = 0
         for data_path in data_files:
             data_path = opt.data_config[:opt.data_config.rfind("/") + 1] + data_path.strip()
 
@@ -155,7 +155,7 @@ if __name__ == "__main__":
                 print(f"+ Class '{c}' ({class_names[c]}) - AP: {AP[i]}")
 
             print(f"mAP: {AP.mean()}")
+            avg_AP += AP.mean()
 
-            data_id += 1
-            if data_id > 1:
-                break
+        avg_AP /= len(data_files)
+        print(f"avg_AP = {avg_AP}")

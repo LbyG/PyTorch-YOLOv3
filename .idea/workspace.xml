@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="06152598-a553-47b6-9546-442744d9de4a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/coco/LuaAPI/CocoApi.lua" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/coco/LuaAPI/MaskApi.lua" beforeDir="false" />
@@ -40,7 +39,8 @@
       <change beforePath="$PROJECT_DIR$/data/coco/results/instances_val2014_fakesegm100_results.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/coco/results/person_keypoints_val2014_fakekeypoints100_results.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/coco/results/val2014_fake_eval_res.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_video.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_video.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_detect_allbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_detect_allbox.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
