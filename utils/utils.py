@@ -162,7 +162,6 @@ def get_batch_statistics(outputs, targets, iou_threshold):
         if len(annotations):
             detected_boxes = []
             target_boxes = annotations[:, 1:]
-
             for pred_i, (pred_box, pred_label) in enumerate(zip(pred_boxes, pred_labels)):
 
                 # If targets are found break
