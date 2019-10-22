@@ -59,14 +59,15 @@ def xywh2xyxy(x):
     return y
 
 
-def ap_per_class(tp, conf, pred_cls, target_cls):
+def ap_per_class(tp, conf, pred_cls, target_cls, undetected_targets):
     """ Compute the average precision, given the recall and precision curves.
     Source: https://github.com/rafaelpadilla/Object-Detection-Metrics.
     # Arguments
-        tp:    True positives (list).
+        tp:    True positives (list[true_positive, uncovered]).
         conf:  Objectness value from 0-1 (list).
         pred_cls: Predicted object classes (list).
         target_cls: True object classes (list).
+        undetected_targets: Uncovered ratio (list[class, uncovered]).
     # Returns
         The average precision as computed in py-faster-rcnn.
     """
@@ -79,11 +80,15 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
     unique_classes = np.unique(target_cls)
 
     # Create Precision-Recall curve and compute AP for each class
-    ap, p, r = [], [], []
+    ap, p, r, covered_ap, uncovered_ap = [], [], [], [], []
     for c in tqdm.tqdm(unique_classes, desc="Computing AP"):
         i = pred_cls == c
         n_gt = (target_cls == c).sum()  # Number of ground truth objects
         n_p = i.sum()  # Number of predicted objects
+        # undetected targets uncovered ratio = Sum(Undetected Targets Uncovered)
+        c_undetected_targets = undetected_targets[undetected_targets[:, 0] == c, 1]
+        sum_undetected_uncovered = np.sum(c_undetected_targets)
+        sum_undetected_covered = c_undetected_targets.shape[0] - sum_undetected_uncovered
 
         if n_p == 0 and n_gt == 0:
             continue
@@ -91,10 +96,12 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
             ap.append(0)
             r.append(0)
             p.append(0)
+            covered_ap.append(0)
+            uncovered_ap.append(0)
         else:
             # Accumulate FPs and TPs
-            fpc = (1 - tp[i]).cumsum()
-            tpc = (tp[i]).cumsum()
+            fpc = (1 - tp[i, 0]).cumsum()
+            tpc = (tp[i, 0]).cumsum()
 
             # Recall
             recall_curve = tpc / (n_gt + 1e-16)
@@ -105,29 +112,40 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
             p.append(precision_curve[-1])
 
             # AP from recall-precision curve
-            ap.append(compute_ap(recall_curve, precision_curve))
+            print("len(recall_curve) = ", len(recall_curve))
+            print("len(precision_curve) = ", len(precision_curve))
+            # print("len(uncovered) = ", len(uncovered))
+            c_ap, c_covered_ap, c_uncovered_ap = compute_ap(recall_curve, precision_curve, tp[i, 1], sum_undetected_uncovered, sum_undetected_covered)
+            ap.append(c_ap)
+            covered_ap.append(c_covered_ap)
+            uncovered_ap.append(c_uncovered_ap)
 
     # Compute F1 score (harmonic mean of precision and recall)
-    p, r, ap = np.array(p), np.array(r), np.array(ap)
+    p, r, ap, covered_ap, uncovered_ap = np.array(p), np.array(r), np.array(ap), np.array(covered_ap), np.array(uncovered_ap)
     f1 = 2 * p * r / (p + r + 1e-16)
 
-    return p, r, ap, f1, unique_classes.astype("int32")
+    return p, r, ap, f1, unique_classes.astype("int32"), covered_ap, uncovered_ap
 
 
-def compute_ap(recall, precision):
+def compute_ap(recall, precision, uncovered, sum_undetected_uncovered, sum_undetected_covered):
     """ Compute the average precision, given the recall and precision curves.
     Code originally from https://github.com/rbgirshick/py-faster-rcnn.
 
     # Arguments
         recall:    The recall curve (list).
         precision: The precision curve (list).
+        uncovered: uncover ratio of matched target
+        sum_undetected_uncovered: sum undetected targets uncovered = Sum(Undetected Targets Uncovered)
+        sum_undetected_covered: sum undetected targets covered = (Undetected Targets Number) - sum_undetected_uncovered
     # Returns
         The average precision as computed in py-faster-rcnn.
     """
     # correct AP calculation
     # first append sentinel values at the end
-    mrec = np.concatenate(([0.0], recall, [1.0]))
-    mpre = np.concatenate(([0.0], precision, [0.0]))
+    mrec = np.concatenate(([0.0], recall))
+    munc = np.concatenate(([0.0], uncovered))
+    mcov = 1 - munc
+    mpre = np.concatenate(([0.0], precision))
 
     # compute the precision envelope
     for i in range(mpre.size - 1, 0, -1):
@@ -139,8 +157,11 @@ def compute_ap(recall, precision):
 
     # and sum (\Delta recall) * prec
     ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
-    return ap
 
+    covered_ap = np.sum(mcov[i + 1] * mpre[i + 1]) / (np.sum(mcov[i + 1]) + sum_undetected_covered)
+    uncovered_ap = np.sum(munc[i + 1] * mpre[i + 1]) / (np.sum(munc[i + 1]) + sum_undetected_uncovered)
+
+    return ap, covered_ap, uncovered_ap
 
 def get_batch_statistics(outputs, targets, iou_threshold):
     """ Compute true positives, predicted scores and predicted labels per sample """
@@ -155,7 +176,7 @@ def get_batch_statistics(outputs, targets, iou_threshold):
         pred_scores = output[:, 4]
         pred_labels = output[:, -1]
 
-        true_positives = np.zeros(pred_boxes.shape[0])
+        true_positives = np.zeros((pred_boxes.shape[0], 2))
 
         annotations = targets[targets[:, 0] == sample_i][:, 1:]
         target_labels = annotations[:, 0] if len(annotations) else []
@@ -174,9 +195,16 @@ def get_batch_statistics(outputs, targets, iou_threshold):
 
                 iou, box_index = bbox_iou(pred_box.unsqueeze(0), target_boxes).max(0)
                 if iou >= iou_threshold and box_index not in detected_boxes:
-                    true_positives[pred_i] = 1
+                    true_positives[pred_i] = np.array([1, target_boxes[box_index, -1]])
                     detected_boxes += [box_index]
-        batch_metrics.append([true_positives, pred_scores, pred_labels])
+
+            undetected_targets = np.zeros((len(annotations) - len(detected_boxes), 2))
+            undetected_i = 0
+            for annotations_i in range(len(annotations)):
+                if annotations_i not in detected_boxes:
+                    undetected_targets[undetected_i] = np.array([sample_i, annotations[annotations_i, -1]])
+                    undetected_i += 1
+        batch_metrics.append([true_positives, pred_scores, pred_labels, undetected_targets])
     return batch_metrics
 
 

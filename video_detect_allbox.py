@@ -45,7 +45,7 @@ def drawManyBBox(frame, detections, color, isTransparency):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--video_path", type=str, default="../Input/TJ/virtual2/orig_video.avi", help="path to video")
+    parser.add_argument("--video_path", type=str, default="../Input/TJ/1_2_0/orig_video.mp4", help="path to video")
     parser.add_argument("--model_def", type=str, default="config/yolov3.cfg", help="path to model definition file")
     parser.add_argument("--weights_path", type=str, default="weights/yolov3.weights", help="path to weights file")
     parser.add_argument("--class_path", type=str, default="data/coco.names", help="path to class label file")
@@ -113,10 +113,11 @@ if __name__ == "__main__":
                 nms_detections = non_max_suppression(detections, opt.conf_thres, opt.nms_thres)
                 detections = detections[0]
                 nms_detections = nms_detections[0]
-                nms_detections = nms_detections[nms_detections[..., 6] == 0]
                 # (x, y, w, h) -> (x1, y1, x2, y2)
                 frame = drawManyBBox(frame, detections, [255, 0, 255], True)
-                frame = drawManyBBox(frame, nms_detections, [0, 255, 0], True)
+                if nms_detections is not None:
+                    nms_detections = nms_detections[nms_detections[..., 6] == 0]
+                    frame = drawManyBBox(frame, nms_detections, [0, 255, 0], True)
 
             # save video frame
             out.write(frame)

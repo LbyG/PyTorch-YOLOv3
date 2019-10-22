@@ -8,6 +8,7 @@ from utils.parse_config import *
 import os
 import cv2
 import sys
+import json
 import time
 import datetime
 import argparse
@@ -47,6 +48,17 @@ def getTarget(data_path):
                 target[gt[0] - 1].append(gt[1:6])
     return target
 
+def getTargetUncovered(target):
+    uncovered = []
+    for i, gt in enumerate(target):
+        iou = bbox_iou(torch.from_numpy(gt[1:5]).unsqueeze(0).double(), torch.from_numpy(target[:, 1:5]).double())
+        iou[i] = 0
+        uncovered.append([1])
+        for j, item in enumerate(iou):
+            if (gt[4] < target[j, 4]):
+                uncovered[-1][0] *= (1 - item.item())
+    return np.array(uncovered)
+
 def evaluate(model, data_path, iou_thres, conf_thres, nms_thres, img_size):
     model.eval()
 
@@ -61,18 +73,21 @@ def evaluate(model, data_path, iou_thres, conf_thres, nms_thres, img_size):
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
     labels = []
+    all_uncovered = []
     sample_metrics = []  # List of tuples (TP, confs, pred)
     frame_id = 0
     while cap.isOpened():
-        if frame_id % 500 == 0:
+        if frame_id % 10 == 0:
             print("frame_id = ", frame_id)
         ret, frame = cap.read()
         if ret:
             target = np.array(targets[frame_id])
-            target = np.concatenate((np.zeros((target.shape[0], 1)), target), 1)
+            uncovered = getTargetUncovered(target)
+            target = np.concatenate((np.zeros((target.shape[0], 1)), target, uncovered), 1)
             target = torch.from_numpy(target).double()
             target[:, 1] = 0
             labels += target[:, 1].tolist()
+            all_uncovered += uncovered[:, 0].tolist()
             # img from np.array to tensor
             video_img = transforms.ToTensor()(frame)
             # Pad to square resolution
@@ -96,12 +111,15 @@ def evaluate(model, data_path, iou_thres, conf_thres, nms_thres, img_size):
         frame_id += 1
 
     # Concatenate sample statistics
-    true_positives, pred_scores, pred_labels = [np.concatenate(x, 0) for x in list(zip(*sample_metrics))]
-    precision, recall, AP, f1, ap_class = ap_per_class(true_positives, pred_scores, pred_labels, labels)
+    true_positives, pred_scores, pred_labels, undetected_targets = [np.concatenate(x, 0) for x in list(zip(*sample_metrics))]
+    precision, recall, AP, f1, ap_class, covered_ap, uncovered_ap = ap_per_class(true_positives, pred_scores, pred_labels, labels, undetected_targets)
 
+    # target covered_uncovered = sum(covered) / sum(uncovered)
+    covered_uncovered = (len(all_uncovered) - sum(all_uncovered)) / sum(all_uncovered)
+    uncovered_var = np.var(all_uncovered)
     # precision, recall, AP, f1, ap_class = 0, 0, 0, 0, 0
     cap.release()
-    return precision, recall, AP, f1, ap_class
+    return precision, recall, AP, f1, ap_class, covered_ap, uncovered_ap, covered_uncovered, uncovered_var
 
 
 if __name__ == "__main__":
@@ -116,6 +134,7 @@ if __name__ == "__main__":
     parser.add_argument("--nms_thres", type=float, default=0.5, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
+    parser.add_argument("--result_path", type=str, default="result/yolov3.json", help="size of each image dimension")
     opt = parser.parse_args()
     print(opt)
     with open(opt.data_config, "r") as file:
@@ -134,13 +153,18 @@ if __name__ == "__main__":
 
         print("Compute mAP...")
 
-        avg_AP = 0
+        result = {}
+        avg_AP, avg_covered_mAP, avg_uncovered_mAP, avg_covered_uncovered, avg_covered_uncovered_mAP, avg_uncovered_var \
+            = 0, 0, 0, 0, 0, 0
+        video_count = 0
         for data_path in data_files:
+            video_result = {}
+            video_count += 1
             data_path = opt.data_config[:opt.data_config.rfind("/") + 1] + data_path.strip()
 
             print("data_path = ", data_path)
 
-            precision, recall, AP, f1, ap_class = evaluate(
+            precision, recall, AP, f1, ap_class, covered_ap, uncovered_ap, covered_uncovered, uncovered_var = evaluate(
                 model,
                 data_path=data_path,
                 iou_thres=opt.iou_thres,
@@ -152,10 +176,43 @@ if __name__ == "__main__":
             class_names = ["Person"]
             print("Average Precisions:")
             for i, c in enumerate(ap_class):
-                print(f"+ Class '{c}' ({class_names[c]}) - AP: {AP[i]}")
+                print(f"+ Class '{c}' ({class_names[c]}) - AP: {AP[i]} - covered_ap: {covered_ap} - uncovered_ap: {uncovered_ap} - covered_uncovered_ap: {covered_ap / (uncovered_ap + 1e-8)}")
 
             print(f"mAP: {AP.mean()}")
-            avg_AP += AP.mean()
+            print(f"covered_mAP: {covered_ap.mean()}")
+            print(f"uncovered_mAP: {uncovered_ap.mean()}")
+            print(f"covered_uncovered: {covered_uncovered}")
+            print(f"uncovered_var: {uncovered_var}")
+            print(f"covered_uncovered_mAP: {(covered_ap / uncovered_ap).mean()}")
+            video_result["precision"] = precision.mean()
+            video_result["recall"] = recall.mean()
+            video_result["mAP"] = AP.mean()
+            video_result["covered_mAP"] = covered_ap.mean()
+            video_result["uncovered_mAP"] = uncovered_ap.mean()
+            video_result["covered_uncovered"] = covered_uncovered
+            video_result["uncovered_var"] = uncovered_var
+            video_result["covered_uncovered_mAP"] = (covered_ap / uncovered_ap).mean()
+            result[data_path[data_path.rfind("/")+1:]] = video_result
 
-        avg_AP /= len(data_files)
+            avg_AP += AP.mean()
+            avg_covered_mAP += covered_ap.mean()
+            avg_uncovered_mAP += uncovered_ap.mean()
+            avg_covered_uncovered += covered_uncovered
+            avg_uncovered_var += uncovered_var
+            avg_covered_uncovered_mAP += (covered_ap / uncovered_ap).mean()
+
+        avg_AP /= video_count
         print(f"avg_AP = {avg_AP}")
+        print(f"avg_covered_mAP = {avg_covered_mAP}")
+        print(f"avg_uncovered_mAP = {avg_uncovered_mAP}")
+        print(f"avg_covered_uncovered_mAP = {avg_covered_uncovered_mAP}")
+        avg_result = {}
+        avg_result["mAP"] = avg_AP / video_count
+        avg_result["covered_mAP"] = avg_covered_mAP / video_count
+        avg_result["uncovered_mAP"] = avg_uncovered_mAP / video_count
+        avg_result["covered_uncovered"] = avg_covered_uncovered / video_count
+        avg_result["uncovered_var"] = avg_uncovered_var / video_count
+        avg_result["covered_uncovered_mAP"] = avg_covered_uncovered_mAP / video_count
+        result["avg"] = avg_result
+        with open(opt.result_path, 'w') as f:
+            json.dump(result, f, indent=4, separators=(',', ': '))
