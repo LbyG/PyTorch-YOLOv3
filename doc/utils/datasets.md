@@ -68,15 +68,6 @@
 - 代码细节
   - `for i, boxes in enumerate(targets): boxes[:, 0] = i`将boxes[i]的第一个维度设置为图像id。
   - 如果`self.multiscale == True`，则每10个`batch`会进行多尺寸采样，即`self.img_size = random.choice(range(self.min_size, self.max_size + 1, 32))`
-
-#### def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres)
-- 功能：。
-- 函数参数
-  - `XXX:` 
-- 函数返回
-  - `XXX:` 
-- 函数细节
-  - `XXX:` 
   
 [torch.utils.data.dataloader]:<https://pytorch.org/docs/stable/data.html>
 [torch.nn.functional.pad]:<https://pytorch.org/docs/stable/nn.functional.html>
