@@ -103,6 +103,15 @@
       - `label_match:` `detection`的类别是否与`detections[0]`相同
       - `detections:` 剔除掉`detections`中与`detections[0]`类别相同且`iou > nms_thres`的`detection`
     - `output[image_i] = keep_boxes:` 保存不同图片的最终预测框
+    
+#### def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres)
+- 功能：。
+- 函数参数
+  - `XXX:` 
+- 函数返回
+  - `XXX:` 
+- 函数细节
+  - `XXX:` 
 
 [COCO mAP]:<https://github.com/LbyG/MOT-Paper-Notes/blob/master/evaluate-metric.md#map%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B>
 [compute_ap]:<utils.md#def-compute_aprecall-precision>
