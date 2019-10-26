@@ -43,8 +43,8 @@
   - `prediction:` 调整Yolov3最后一层特征图的形式`(图片数量, 锚数量， 预测向量(类别数量+5), 特征图尺寸, 特征图尺寸)`
   - `x = torch.sigmoid(prediction[..., 0]):` 预测框左上角横坐标偏移`(值的范围在[0, 1]之间)`
   - `y = torch.sigmoid(prediction[..., 1]):` 预测框左上角纵坐标偏移`(值的范围在[0, 1]之间)`
-  - `w = prediction[..., 2]:` 预测框的宽偏移`(值的范围在[0, 1]之间)`
-  - `h = prediction[..., 3]:` 预测框的高偏移`(值的范围在[0, 1]之间)`
+  - `w = prediction[..., 2]:` 预测框的宽偏移`(之后需要进行(exp(w) * anchor_w) * stride缩放)`
+  - `h = prediction[..., 3]:` 预测框的高偏移`(之后需要进行(exp(h) * anchor_h) * stride缩放)`
   - `pred_boxes[..., 0] = (x + grid_x) * stride:` 预测框在图片中左上角的横坐标`(值的范围在[0, img_size]之间)`
   - `pred_boxes[..., 1] = (y + grid_y) * stride:` 预测框在图片中左上角的纵坐标`(值的范围在[0, img_size]之间)`
   - `pred_boxes[..., 2] = (exp(w) * anchor_w) * stride:` 预测框在图片中的宽`(宽是在[0, img_size]坐标下)`
