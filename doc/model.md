@@ -54,5 +54,6 @@
     - `return output, 0`
   - 否则，计算损失函数
     - `iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf = build_targets:` 调用[utils.build_targets](utils/utils.md#def-build_targetspred_boxes-pred_cls-target-anchors-ignore_thres)将真实目标框与网络特征图进行匹配, 得到相关参数
-      - `loss = mse(x) + mse(y) + mse(w) + mse(h) + bce(obj_conf) + 100 * bce(noobj_conf) + bce(cls_conf)`
+      - `total_loss = mse(x) + mse(y) + mse(w) + mse(h) + bce(obj_conf) + 100 * bce(noobj_conf) + bce(cls_conf)`
       - `FP`的惩罚比`FN`的惩罚高， 这种情况下`precise`比`recall`重要
+      - `return output, loss`
