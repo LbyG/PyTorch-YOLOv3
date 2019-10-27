@@ -5,11 +5,11 @@
 - `self.anchors:` 特征图的锚
 - `self.num_anchors:` 锚的数量
 - `self.num_classes:` 类别数量
-- `self.ignore_thres:` TODO
+- `self.ignore_thres:` 如果除最大iou以外的锚与真实目标框的`wh_iou > ignore_thres`, 则特征图点无法判断是否存在目标，不计算损失函数。
 - `self.mse_loss:` 均方误差损失函数`(x_i - y_i)^2`
 - `self.bce_loss:` 交叉熵损失函数`(- x * log(y) - (1 - x) * log(1 - y))`
-- `self.obj_scale:` 损失函数中有目标的权重
-- `self.noobj_scale:` 损失函数中没有目标的权重
+- `self.obj_scale:` 损失函数中有目标的权重`(1)`
+- `self.noobj_scale:` 损失函数中没有目标的权重`(100)`
 - `self.metrics:` 记录模型运行中的参数
 - `self.img_dim:` 图片尺寸
 - `self.grid_size:` 特征图尺寸
@@ -45,12 +45,14 @@
   - `y = torch.sigmoid(prediction[..., 1]):` 预测框左上角纵坐标偏移`(值的范围在[0, 1]之间)`
   - `w = prediction[..., 2]:` 预测框的宽偏移`(之后需要进行(exp(w) * anchor_w) * stride缩放)`
   - `h = prediction[..., 3]:` 预测框的高偏移`(之后需要进行(exp(h) * anchor_h) * stride缩放)`
-  - `pred_boxes[..., 0] = (x + grid_x) * stride:` 预测框在图片中左上角的横坐标`(值的范围在[0, img_size]之间)`
-  - `pred_boxes[..., 1] = (y + grid_y) * stride:` 预测框在图片中左上角的纵坐标`(值的范围在[0, img_size]之间)`
-  - `pred_boxes[..., 2] = (exp(w) * anchor_w) * stride:` 预测框在图片中的宽`(宽是在[0, img_size]坐标下)`
-  - `pred_boxes[..., 3] = (exp(h) * anchor_h) * stride:` 预测框在图片中的高`(高是在[0, img_size]坐标下)`
+  - `pred_boxes[..., 0] = x + grid_x:` 预测框在图片中左上角的横坐标`(在[0, grid_size]坐标系下的左上角横坐标)`
+  - `pred_boxes[..., 1] = y + grid_y:` 预测框在图片中左上角的纵坐标`(在[0, grid_size]坐标系下的左上角纵坐标)`
+  - `pred_boxes[..., 2] = exp(w) * anchor_w:` 预测框在图片中的宽`(在[0, grid_size]坐标系下的宽)`
+  - `pred_boxes[..., 3] = exp(h) * anchor_h:` 预测框在图片中的高`(在[0, grid_size]坐标系下的高)`
+  - `output[..., 0:4] = pred_boxes[..., 0:4] * stride:` 预测框在图片中的左上角横纵坐标和宽高`(值的范围在[0, img_size]之间)`
   - 如果`target is None`
     - `return output, 0`
   - 否则，计算损失函数
-    - `iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf = build_targets:` 调用[utils.build_targets]()将真实目标框与网络特征图进行匹配, 得到相关参数
-  
+    - `iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf = build_targets:` 调用[utils.build_targets](utils/utils.md#def-build_targetspred_boxes-pred_cls-target-anchors-ignore_thres)将真实目标框与网络特征图进行匹配, 得到相关参数
+      - `loss = mse(x) + mse(y) + mse(w) + mse(h) + bce(obj_conf) + 100 * bce(noobj_conf) + bce(cls_conf)`
+      - `FP`的惩罚比`FN`的惩罚高， 这种情况下`precise`比`recall`重要
