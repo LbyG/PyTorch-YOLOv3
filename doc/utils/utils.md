@@ -107,11 +107,45 @@
 #### def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres)
 - 功能：。
 - 函数参数
-  - `XXX:` 
+  - `pred_boxes:` 预测目标框在[0, grid_size]坐标系下的(x, y, w, h)
+  - `pred_cls:` 预测目标框的类别
+  - `target:` 真实目标框在[0, 1]坐标系下的(x, y, w, h)`(6维变量batch_i, label, x, y, w, h)`
+  - `anchors:` 特征图中锚的尺寸大小
+  - `ignore_thres:` TODO
 - 函数返回
-  - `XXX:` 
+  - `iou_scores:` 预测特征图与真实目标框之间的`iou``(torch.shape = [batch_n, anchors_n, grid_size, grid_size, target_n]))`
+  - `class_mask:` 预测特征图与真实目标框类别是否匹配`(torch.shape = [batch_n, anchors_n, grid_size, grid_size, target_n]))`
+  - `obj_mask:` 特征图存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `noobj_mask:` 特征图不存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `tx:` 应该预测存在目标的特征图应该输出的左上角横坐标`(torch.shape = [batch_n, anchors_n, grid_size, grid_size], [0, 1]坐标系)`
+  - `ty:` 应该预测存在目标的特征图应该输出的左上角纵坐标`(torch.shape = [batch_n, anchors_n, grid_size, grid_size], [0, 1]坐标系)`
+  - `tw:` 应该预测存在目标的特征图应该输出的宽`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `th:` 应该预测存在目标的特征图应该输出的高`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `tcls:` 应该输出的类别`(torch.shape = [batch_n, anchors_n, grid_size, grid_size]))`
+  - `tconf:` 特征图存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
 - 函数细节
-  - `XXX:` 
+  - `target_boxes = target[:, 2:6] * nG:` 真实目标框在[0, grid_size]坐标系下的(x, y, w, h)`(torch.shape = [target_n, 4])`
+  - `gxy = target_boxes[:, :2]:` 真实目标框在[0, grid_size]坐标系下的左上角坐标`(torch.shape = [target_n, 2])`
+  - `gwh = target_boxes[:, 2:]:` 真实目标框在[0, grid_size]坐标系下的宽高`(torch.shape = [target_n, 2])`
+  - `ious:` 不同尺寸锚(宽高)与预测框(宽高)之间的`iou``(torch.shape = [anchor_num, pred_num])`
+  - `best_ious:` 预测框(宽高)与锚(宽高)之间的最大iou值`(torch.shape = [pred_num])`
+  - `best_n:` 预测框(宽高)与锚(宽高)之间的最大iou的锚id`(torch.shape = [pred_num])`
+  - `b:` 真实目标框位于`batch`中的`id``(torch.shape = [target_num])`
+  - `target_labels:` 真实目标框的类别`id``(torch.shape = [target_num])`
+  - `gx, gi:` 真实目标框在[0, grid_size]坐标系下的左上角横坐标`(torch.shape = [target_num])`
+  - `gy, gj:` 真实目标框在[0, grid_size]坐标系下的左上角横坐标`(torch.shape = [target_num])`
+  - `gw:` 真实目标框在[0, grid_size]坐标系下的宽`(torch.shape = [target_num])`
+  - `gh:` 真实目标框在[0, grid_size]坐标系下的高`(torch.shape = [target_num])`
+  - `obj_mask[b, best_n, gj, gi] = 1:` 特征图存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `noobj_mask[b, best_n, gj, gi] = 1:` 特征图不存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `tx[b, best_n, gj, gi] = gx - gx.floor():` 特征图应该输出的左上角横坐标偏置`([0, 1]坐标系)`
+  - `ty[b, best_n, gj, gi] = gy - gy.floor():` 特征图应该输出的左上角纵坐标偏置`([0, 1]坐标系)`
+  - `tw[b, best_n, gj, gi] = log(gw / anchors[best_n][0]):` 特征图应该输出的宽偏置
+  - `th[b, best_n, gj, gi] = log(gh / anchors[best_n][0]):` 特征图应该输出的高偏置
+  - `tcls[b, best_n, gj, gi, target_labels] = 1:` 特征图应该输出的类别`(torch.shape = [batch_n, anchors_n, grid_size, grid_size]))`
+  - `class_mask[b, best_n, gj, gi]:` 预测特征图与真实目标框类别是否匹配`(torch.shape = [batch_n, anchors_n, grid_size, grid_size, target_n]))`
+  - `iou_scores[b, best_n, gj, gi]:` 预测特征图与真实目标框之间的`iou``(torch.shape = [batch_n, anchors_n, grid_size, grid_size, target_n]))`
+  - `tconf = obj_mask.float()`
 
 [COCO mAP]:<https://github.com/LbyG/MOT-Paper-Notes/blob/master/evaluate-metric.md#map%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B>
 [compute_ap]:<utils.md#def-compute_aprecall-precision>
