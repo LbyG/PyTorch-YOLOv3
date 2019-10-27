@@ -111,7 +111,7 @@
   - `pred_cls:` 预测目标框的类别
   - `target:` 真实目标框在[0, 1]坐标系下的(x, y, w, h)`(6维变量batch_i, label, x, y, w, h)`
   - `anchors:` 特征图中锚的尺寸大小
-  - `ignore_thres:` TODO
+  - `ignore_thres:` 如果除最大iou以外的锚与真实目标框的`wh_iou > ignore_thres`, 则特征图点无法判断是否存在目标，不计算损失函数。
 - 函数返回
   - `iou_scores:` 预测特征图与真实目标框之间的`iou``(torch.shape = [batch_n, anchors_n, grid_size, grid_size, target_n]))`
   - `class_mask:` 预测特征图与真实目标框类别是否匹配`(torch.shape = [batch_n, anchors_n, grid_size, grid_size, target_n]))`
@@ -138,6 +138,7 @@
   - `gh:` 真实目标框在[0, grid_size]坐标系下的高`(torch.shape = [target_num])`
   - `obj_mask[b, best_n, gj, gi] = 1:` 特征图存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
   - `noobj_mask[b, best_n, gj, gi] = 1:` 特征图不存在目标的二值图`(torch.shape = [batch_n, anchors_n, grid_size, grid_size])`
+  - `noobj_mask[b[i], anchor_ious > ignore_thres, gj[i], gi[i]] = 0:` 如果除最大iou以外的锚与真实目标框的`wh_iou > ignore_thres`, 则特征图点无法判断是否存在目标，不计算损失函数。
   - `tx[b, best_n, gj, gi] = gx - gx.floor():` 特征图应该输出的左上角横坐标偏置`([0, 1]坐标系)`
   - `ty[b, best_n, gj, gi] = gy - gy.floor():` 特征图应该输出的左上角纵坐标偏置`([0, 1]坐标系)`
   - `tw[b, best_n, gj, gi] = log(gw / anchors[best_n][0]):` 特征图应该输出的宽偏置
